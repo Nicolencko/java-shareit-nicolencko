@@ -12,12 +12,12 @@ import javax.validation.constraints.NotNull;
 public class ItemDto {
     @NotBlank(message = "Name is mandatory")
     @NotNull
-    String name;
+    private String name;
     @NotBlank(message = "Description is mandatory")
     @NotNull
-    String description;
+    private String description;
     @NotNull
-    Boolean available;
-    Long id;
+    private Boolean available;
+    private Long id;
 
 }
