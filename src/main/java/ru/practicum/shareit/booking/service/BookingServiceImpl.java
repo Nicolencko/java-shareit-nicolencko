@@ -89,13 +89,11 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdOrderByStartDesc(userId));
             case WAITING:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStartIsAfterAndStatusIsOrderByStartDesc(userId,
-                        now, BookingStatus.WAITING));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStartIsAfterAndStatusIsOrderByStartDesc(userId, now, BookingStatus.WAITING));
             case REJECTED:
                 return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStatusIsOrderByStartDesc(userId, BookingStatus.REJECTED));
             case CURRENT:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc
-                        (userId, now, now));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc(userId, now, now));
             case PAST:
                 return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, now));
             case FUTURE:
