@@ -30,7 +30,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingOutputDto addBooking(BookingInputDto bookingDto, Long userId) {
+        System.out.println(bookingDto.getStart());
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
+            System.out.println("b");
             throw new BookingDateException("Start date must be before end date");
         }
         if (bookingDto.getStart().isBefore(LocalDateTime.now()) || bookingDto.getEnd().isBefore(LocalDateTime.now())) {
@@ -86,7 +88,9 @@ public class BookingServiceImpl implements BookingService {
         if (userRepository.findById(userId).isEmpty()) {
             throw new UserNotFoundException("User with id " + userId + " not found");
         }
+        System.out.println(from);
         if (from < 0 || size <= 0) {
+            System.out.println("a");
             throw new IllegalArgumentException("Page number and size must be positive");
         }
         LocalDateTime now = LocalDateTime.now();
