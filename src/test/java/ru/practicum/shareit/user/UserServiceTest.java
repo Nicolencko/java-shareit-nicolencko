@@ -34,9 +34,9 @@ class UserServiceTest {
     void createTest() {
         User userCreate = new User(1L, "user", "email@email.com");
 
-        Optional<User> User = Optional.of(userService.addUser(userCreate));
+        Optional<User> user = Optional.of(userService.addUser(userCreate));
 
-        assertThat(User)
+        assertThat(user)
                 .isPresent()
                 .hasValueSatisfying(f -> {
                             assertThat(f).hasFieldOrPropertyWithValue("id", 1L);
