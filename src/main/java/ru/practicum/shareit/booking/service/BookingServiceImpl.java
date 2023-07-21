@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -80,52 +82,59 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingOutputDto> getAllUsersBookings(Long userId, BookingState state) {
+    public List<BookingOutputDto> getAllUsersBookings(Long userId, BookingState state, Integer from, Integer size) {
         if (userRepository.findById(userId).isEmpty()) {
             throw new UserNotFoundException("User with id " + userId + " not found");
         }
+        if (from < 0 || size <= 0) {
+            throw new IllegalArgumentException("Page number and size must be positive");
+        }
         LocalDateTime now = LocalDateTime.now();
+        Pageable page = PageRequest.of(from / size, size);
         switch (state) {
             case ALL:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdOrderByStartDesc(userId));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdOrderByStartDesc(userId, page));
             case WAITING:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStartIsAfterAndStatusIsOrderByStartDesc(userId, now, BookingStatus.WAITING));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStartIsAfterAndStatusIsOrderByStartDesc(userId, now, BookingStatus.WAITING, page));
             case REJECTED:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStatusIsOrderByStartDesc(userId, BookingStatus.REJECTED));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStatusIsOrderByStartDesc(userId, BookingStatus.REJECTED, page));
             case CURRENT:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc(userId, now, now));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndEndIsAfterAndStartIsBeforeOrderByStartDesc(userId, now, now, page));
             case PAST:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, now));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, now, page));
             case FUTURE:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId, now));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId, now, page));
             default:
                 throw new StateNotFoundException("Booking state " + state + " not found");
         }
     }
 
     @Override
-    public List<BookingOutputDto> getAllUsersItemsBookings(Long userId, BookingState state) {
+    public List<BookingOutputDto> getAllUsersItemsBookings(Long userId, BookingState state, Integer from, Integer size) {
         if (userRepository.findById(userId).isEmpty()) {
             throw new UserNotFoundException("User with id " + userId + " not found");
         }
+        if (from < 0 || size <= 0) {
+            throw new IllegalArgumentException("Page number and size must be positive");
+        }
         LocalDateTime now = LocalDateTime.now();
+        Pageable page = PageRequest.of(from / size, size);
         switch (state) {
             case ALL:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllUsersItemsBookings(userId));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllUsersItemsBookings(userId, page));
             case WAITING:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllWaitingUsersItemsBookings(userId, now, BookingStatus.WAITING));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllWaitingUsersItemsBookings(userId, now, BookingStatus.WAITING, page));
             case REJECTED:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllRejectedUsersItemsBookings(userId, BookingStatus.REJECTED));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllRejectedUsersItemsBookings(userId, BookingStatus.REJECTED, page));
             case CURRENT:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllCurrentUsersItemsBookings(userId, now));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllCurrentUsersItemsBookings(userId, now, page));
             case PAST:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllPastUsersItemsBookings(userId, now));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllPastUsersItemsBookings(userId, now, page));
             case FUTURE:
-                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllFutureUsersItemsBookings(userId, now, BookingStatus.APPROVED));
+                return BookingMapper.toBookingOutputDtoList(bookingRepository.getAllFutureUsersItemsBookings(userId, now, BookingStatus.APPROVED, page));
             default:
                 throw new StateNotFoundException("Booking state " + state + " not found");
         }
-
 
     }
 

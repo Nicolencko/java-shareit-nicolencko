@@ -16,19 +16,19 @@ import java.time.LocalDateTime;
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @Column(name = "start_time", nullable = false)
-    LocalDateTime start;
+    private LocalDateTime start;
     @Column(name = "end_time", nullable = false)
-    LocalDateTime end;
+    private LocalDateTime end;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "item_id")
-    Item item;
+    private Item item;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "booker_id")
-    User booker;
+    private User booker;
     @Enumerated(EnumType.STRING)
-    BookingStatus status;
+    private BookingStatus status;
 
     public Booking(LocalDateTime start, LocalDateTime end) {
         this.start = start;
