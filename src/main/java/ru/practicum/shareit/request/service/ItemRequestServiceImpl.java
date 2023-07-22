@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -24,17 +25,11 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserRepository userRepository;
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRepository itemRepository;
-
-    @Autowired
-    public ItemRequestServiceImpl(UserRepository userRepository, ItemRequestRepository itemRequestRepository, ItemRepository itemRepository) {
-        this.userRepository = userRepository;
-        this.itemRequestRepository = itemRequestRepository;
-        this.itemRepository = itemRepository;
-    }
 
     @Override
     public ItemRequestDto createRequest(ItemRequestDto itemRequestDto, long userId) {

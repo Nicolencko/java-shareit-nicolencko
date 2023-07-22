@@ -106,5 +106,4 @@ class UserServiceTest {
                 .map(User::getId)
                 .contains(2L);
     }
-
 }

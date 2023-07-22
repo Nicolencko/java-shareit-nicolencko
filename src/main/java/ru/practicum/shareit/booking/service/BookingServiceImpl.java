@@ -30,7 +30,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingOutputDto addBooking(BookingInputDto bookingDto, Long userId) {
-        System.out.println(bookingDto.getStart());
         if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
             System.out.println("b");
             throw new BookingDateException("Start date must be before end date");
