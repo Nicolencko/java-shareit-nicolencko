@@ -93,12 +93,12 @@ public class ItemServiceImpl implements ItemService {
         if (from < 0 || size <= 0) {
             throw new IllegalArgumentException("Page number and size must be positive");
         }
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+        checkIfUserExists(userId);
         Pageable page = PageRequest.of(from / size, size);
         List<Item> items = itemRepository.getAllByOwnerId(userId, page);
         List<ItemDto> itemDtos = new ArrayList<>();
+        List<Comment> comments = commentRepository.findByItemIn(items);
         for (Item item : items) {
-            List<Comment> comments = commentRepository.findAllByItemId(item.getId());
             List<Booking> bookings = getLastNextBookings(item);
 
             itemDtos.add(ItemMapper.toOwnerItemDto(item, bookings, comments));
@@ -117,9 +117,8 @@ public class ItemServiceImpl implements ItemService {
         Pageable page = PageRequest.of(from / size, size);
         List<Item> items = itemRepository.searchAvailableItemsByKeyword(text, page);
         List<ItemDto> itemDtos = new ArrayList<>();
+        List<Comment> comments = commentRepository.findByItemIn(items);
         for (Item item : items) {
-            List<Comment> comments = commentRepository.findAllByItemId(item.getId());
-
             itemDtos.add(ItemMapper.toOutputItemDto(item, comments));
         }
         return itemDtos;
@@ -147,6 +146,12 @@ public class ItemServiceImpl implements ItemService {
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+    }
+
+    private void checkIfUserExists(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("User with id " + userId + " not found");
+        }
     }
 
     private List<Booking> getLastNextBookings(Item item) {

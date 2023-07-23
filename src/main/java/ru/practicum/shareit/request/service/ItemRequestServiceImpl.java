@@ -46,19 +46,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         if (from < 0 || size <= 0) {
             throw new IllegalArgumentException("Page number and size must be positive");
         }
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
-        Pageable page = PageRequest.of(from / size, size, Sort.by("created"));
+        checkIfUserExists(userId);
+        Pageable page = PageRequest.of(from / size, size);
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequesterIdIsNot(userId, page).getContent();
+        List<Item> items = itemRepository.getAllByItemRequestIn(itemRequests, page);
+
         for (ItemRequest itemRequest : itemRequests) {
-            List<Item> items = itemRepository.findAllByItemRequest(itemRequest);
-            itemRequest.setItems(new HashSet<>(ItemMapper.toDtoList(items)));
+            List<Item> itemsForRequest = items.stream().filter(item -> item.getItemRequest().getId().equals(itemRequest.getId())).collect(Collectors.toList());
+            itemRequest.setItems(new HashSet<>(ItemMapper.toDtoList(itemsForRequest)));
         }
         return itemRequests.stream().map(ItemRequestMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public ItemRequestDto getRequestById(long requestId, long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+        checkIfUserExists(userId);
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(() -> new ItemNotFoundException("Request with id " + requestId + " not found"));
         itemRequest.setItems(new HashSet<>(ItemMapper.toDtoList(itemRepository.findAllByItemRequest(itemRequest))));
         return ItemRequestMapper.toDto(itemRequest);
@@ -66,16 +68,24 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> getAllUserRequests(Long requesterId) {
-        userRepository.findById(requesterId).orElseThrow(() -> new UserNotFoundException("User with id " + requesterId + " not found"));
+        checkIfUserExists(requesterId);
 
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
+
         List<ItemRequest> itemRequests = itemRequestRepository.findAllByRequester_Id(requesterId, sort);
+        List<Item> items = itemRepository.findAllByItemRequestIn(itemRequests);
+
         for (ItemRequest itemRequest : itemRequests) {
-            List<Item> items = itemRepository.findAllByItemRequest(itemRequest);
-            System.out.println(items);
-            itemRequest.setItems(new HashSet<>(ItemMapper.toDtoList(items)));
+            List<Item> itemsForRequest = items.stream().filter(item -> item.getItemRequest().getId().equals(itemRequest.getId())).collect(Collectors.toList());
+            itemRequest.setItems(new HashSet<>(ItemMapper.toDtoList(itemsForRequest)));
         }
 
         return itemRequests.stream().map(ItemRequestMapper::toDto).collect(Collectors.toList());
+    }
+
+    private void checkIfUserExists(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("User with id " + userId + " not found");
+        }
     }
 }
