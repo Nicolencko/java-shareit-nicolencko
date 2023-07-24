@@ -13,4 +13,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query("select c from Comment as c where c.item in ?1")
     List<Comment> findByItemIn(List<Item> items);
+
+    List<Comment> findAllByItemIn(List<Item> items);
 }

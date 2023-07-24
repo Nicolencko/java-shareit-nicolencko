@@ -1,12 +1,14 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -23,4 +25,22 @@ public class Comment {
     private User author;
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Comment)) {
+            return false;
+        }
+        Comment other = (Comment) obj;
+        return id.equals(other.id)
+                && text.equals(other.text)
+                && item.equals(other.item)
+                && author.equals(other.author)
+                && created.equals(other.created);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }
