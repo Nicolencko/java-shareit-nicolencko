@@ -5,7 +5,9 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemMapper {
     public static ItemDto toOutputItemDto(Item item, List<Comment> comments) {
@@ -13,6 +15,7 @@ public class ItemMapper {
         itemDto.setId(item.getId());
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
+        itemDto.setRequestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null);
         itemDto.setAvailable(item.getAvailable());
         itemDto.setComments(CommentMapper.toDtoList(comments));
         return itemDto;
@@ -22,6 +25,7 @@ public class ItemMapper {
         ItemDto itemDto = new ItemDto();
         itemDto.setId(item.getId());
         itemDto.setName(item.getName());
+        itemDto.setRequestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null);
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
         return itemDto;
@@ -46,5 +50,11 @@ public class ItemMapper {
                 itemDto.getDescription(),
                 itemDto.getAvailable()
         );
+    }
+
+    public static List<ItemDto> toDtoList(Collection<Item> items) {
+        return items.stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 }

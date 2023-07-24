@@ -12,6 +12,4 @@ public class ItemBookingDto {
     private Long bookerId;
     private LocalDateTime start;
     private LocalDateTime end;
-
-
 }
